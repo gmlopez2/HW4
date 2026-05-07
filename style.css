@@ -3,6 +3,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 /* Font */
@@ -21,11 +22,13 @@ body {
 /* Header Styling */
 h1 {
   font-family: 'Impact', 'Arial Black', sans-serif;
-  color: #0a1f44;                   
+  color: #ffffff;                   
   letter-spacing: 1px;
+  margin: 10px 0;
+  font-size: 2.5em;
 }
 
-/* Header Bar */
+/* Header Bar - Original header (now replaced with fixed header) */
 #header {
   background-color: #0a1f44;        
   color: #ffffff;                   
@@ -37,17 +40,17 @@ h1 {
 header {
   background-color: #0a1f44;         
   color: #ffffff;                   
-  padding: 15px;
+  padding: 20px 15px;
   text-align: center;
-  border-bottom: 4px solid #b30000; 
+  border-bottom: 4px solid #b30000;
+  display: none;
 }
 
 #header img,
 header img {
-  vertical-align: middle;
-  height: 30px;
+  height: 50px;
   width: auto;
-  margin-right: 20px;
+  margin-bottom: 10px;
 }
 
 /* iFrame Style Header*/
@@ -111,13 +114,32 @@ input[type="reset"]:hover {
   background-color: #0a1f44;     
 }
 
-/* Footer */
-#footer {
-  background-color: #0a1f44;       
+/* Fixed header - Stays locked at top while scrolling (Reference structure) w3schools */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #0a1f44;
   color: #ffffff;
   text-align: center;
-  padding: 10px;
-  border-top: 4px solid #b30000;  
+  padding: 15px;
+  border-bottom: 4px solid #b30000;
+  z-index: 1000;
+  margin: 0;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.5em;
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  letter-spacing: 1px;
+}
+
+/* Adjust main content to account for fixed header */
+main {
+  margin-top: 80px;
+  padding-bottom: 0;
 }
 
 /* Labels */
