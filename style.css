@@ -116,7 +116,7 @@ input[type="reset"]:hover {
 
 /* Fixed header - Stays locked at top while scrolling (Reference structure) w3schools */
 .header {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
