@@ -212,19 +212,31 @@ function initializeSalarySlider() {
 // Load State options from states.html using Fetch API (referenced w3schools/little bit of copilot help)
 async function loadStates() {
   try {
+    console.log('Starting to load states...');
     const response = await fetch('states.html');
+    console.log('Fetch response status:', response.status);
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const statesHTML = await response.text();
+    console.log('States HTML received:', statesHTML.substring(0, 50));
+    
     const stateSelect = document.getElementById('state');
+    if (!stateSelect) {
+      console.error('State select element not found!');
+      return;
+    }
+    
     stateSelect.innerHTML = statesHTML;
     console.log('States loaded successfully from states.html');
   } catch (error) {
     console.error('Error loading states:', error);
     // Add default option if fetch fails
     const stateSelect = document.getElementById('state');
-    stateSelect.innerHTML = '<option value="">-- Select State--</option>';
+    if (stateSelect) {
+      stateSelect.innerHTML = '<option value="">-- Select State--</option><option value="AL">AL</option><option value="AK">AK</option>';
+    }
   }
 }
 
