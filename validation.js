@@ -208,8 +208,30 @@ function initializeSalarySlider() {
   slider.addEventListener('input', () => { display.textContent = fmt(slider.value); });
 }
 
+//  FETCH API - Load States from External File 
+// Load State options from states.html using Fetch API (referenced w3schools/little bit of copilot help)
+async function loadStates() {
+  try {
+    const response = await fetch('states.html');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const statesHTML = await response.text();
+    const stateSelect = document.getElementById('state');
+    stateSelect.innerHTML = statesHTML;
+    console.log('States loaded successfully from states.html');
+  } catch (error) {
+    console.error('Error loading states:', error);
+    // Add default option if fetch fails
+    const stateSelect = document.getElementById('state');
+    stateSelect.innerHTML = '<option value="">-- Select State--</option>';
+  }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
+  // Load states from external file
+  loadStates();
   // Set date constraints
   const today = new Date();
   today.setHours(0, 0, 0, 0);
