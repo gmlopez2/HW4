@@ -19,10 +19,10 @@ body {
   flex: 1;
 }
 
-/* Header Styling */
+/* Header Styling  Blue to indicate change*/
 h1 {
   font-family: 'Impact', 'Arial Black', sans-serif;
-  color: #ffffff;                   
+  color: #0eb9e4;                   
   letter-spacing: 1px;
   margin: 10px 0;
   font-size: 2.5em;
