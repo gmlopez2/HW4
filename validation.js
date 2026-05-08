@@ -3,7 +3,7 @@
 //Author: Gabriel Lopez
 //Date created: 5/4/2026
 // Date last edited: 5/8/2026
-// Version: 4.10
+// Version: 4.12
 //Description: This JavaScript file contains all the logic for validating the form fields in real-time and managing cookies for user experience.
 
 // Cookie return function, reference w3schools 
@@ -137,6 +137,42 @@ function clearFormStorage(userName) {
   
   // Also clear medical history
   localStorage.removeItem(getStorageKey('history', userName));
+}
+
+// Handle Remember Me checkbox
+function handleRememberMeChange() {
+  const rememberCheckbox = document.getElementById('rememberMe');
+  const firstName = document.getElementById('firstName').value.trim();
+  
+  if (!rememberCheckbox || !firstName) return;
+  
+  if (rememberCheckbox.checked) {
+    // Checkbox is checked - save cookie and localStorage
+    setCookie("userFirstName", firstName, 1);
+    saveAllFields(firstName);
+  } else {
+    // Checkbox is unchecked - delete cookie and clear localStorage
+    deleteCookie("userFirstName");
+    clearFormStorage(firstName);
+  }
+}
+
+// Save all form fields to localStorage
+function saveAllFields(userName) {
+  if (!userName) return;
+  
+  storageFields.forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      saveFieldToStorage(fieldId, userName);
+    }
+  });
+  
+  // Save medical history
+  const checkedValues = Array.from(document.querySelectorAll('input[name="history"]:checked')).map(c => c.value).join(',');
+  if (checkedValues) {
+    localStorage.setItem(getStorageKey('history', userName), checkedValues);
+  }
 }
 
 // Validation rules for each field to keep code organized and maintainable, 
@@ -406,7 +442,10 @@ document.addEventListener('DOMContentLoaded', function () {
   if (salarySlider) {
     salarySlider.addEventListener('input', () => {
       const userName = getCookie("userFirstName");
-      saveFieldToStorage('salary', userName);
+      const rememberCheckbox = document.getElementById('rememberMe');
+      if (userName && rememberCheckbox && rememberCheckbox.checked) {
+        saveFieldToStorage('salary', userName);
+      }
     });
   }
 
@@ -436,9 +475,10 @@ document.addEventListener('DOMContentLoaded', function () {
         checkAndDisplayUser();
       }
 
-      // Save to localStorage for non-sensitive fields
+      // Save to localStorage for non-sensitive fields (only if Remember Me is checked)
+      const rememberCheckbox = document.getElementById('rememberMe');
       const userName = getCookie("userFirstName");
-      if (userName && storageFields.includes(fieldId)) {
+      if (userName && storageFields.includes(fieldId) && rememberCheckbox && rememberCheckbox.checked) {
         saveFieldToStorage(fieldId, userName);
       }
     };
@@ -471,6 +511,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  // Remember Me checkbox handler
+  const rememberCheckbox = document.getElementById('rememberMe');
+  if (rememberCheckbox) {
+    rememberCheckbox.addEventListener('change', handleRememberMeChange);
+  }
+
   // Validate button
   document.getElementById('validateBtn').addEventListener('click', () => {
     if (validateForm()) {
@@ -482,9 +528,18 @@ document.addEventListener('DOMContentLoaded', function () {
   // submit button
   document.getElementById('confirm-submit-btn')?.addEventListener('click', () => {
     const firstName = document.getElementById('firstName').value.trim();
-    if (firstName) {
+    const rememberCheckbox = document.getElementById('rememberMe');
+    
+    if (firstName && rememberCheckbox && rememberCheckbox.checked) {
+      // Save everything only if Remember Me is checked
       setCookie("userFirstName", firstName, 1);
+      saveAllFields(firstName);
+    } else if (firstName) {
+      // Delete everything if Remember Me is unchecked
+      deleteCookie("userFirstName");
+      clearFormStorage(firstName);
     }
+    
     window.location.href = 'thankyou.html';
   });
 
