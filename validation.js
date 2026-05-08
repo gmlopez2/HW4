@@ -41,10 +41,12 @@ function checkAndDisplayUser() {
   const welcomeDiv = document.getElementById("userWelcome");
   
   if (userName) {
-    welcomeDiv.innerHTML = `<p>Welcome back, <strong>${userName}</strong>! | <span style="cursor: pointer; color: #0eb9e4; text-decoration: underline;" onclick="startAsNewUser()">Not ${userName}? Click here to start as NEW USER</span></p>`;
+    welcomeDiv.innerHTML = `Welcome back, <strong>${userName}</strong>! | <span style="cursor: pointer; text-decoration: underline; background-color: rgba(255,255,255,0.2); padding: 3px 6px; border-radius: 3px;" onclick="startAsNewUser()">Not ${userName}? Click here</span>`;
+    welcomeDiv.style.display = 'block';
     document.getElementById("firstName").value = userName;
   } else {
-    welcomeDiv.innerHTML = `<p>Welcome New User!</p>`;
+    welcomeDiv.innerHTML = '';
+    welcomeDiv.style.display = 'none';
   }
 }
 
