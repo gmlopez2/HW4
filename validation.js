@@ -1,3 +1,60 @@
+// Gabriel Lopez
+// Program name: index.html
+//Author: Gabriel Lopez
+//Date created: 5/4/2026
+// Date last edited: 5/8/2026
+// Version: 4.10
+//Description: This JavaScript file contains all the logic for validating the form fields in real-time and managing cookies for user experience.
+
+// Cookie return function, reference w3schools 
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+// Expiries cookie after 24 hours, 
+
+function setCookie(cname, cvalue, exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  const expires = "expires=" + d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function deleteCookie(cname) {
+  setCookie(cname, "", -1);
+}
+
+// Check for existing user and show welcome message
+function checkAndDisplayUser() {
+  const userName = getCookie("userFirstName");
+  const welcomeDiv = document.getElementById("userWelcome");
+  
+  if (userName) {
+    welcomeDiv.innerHTML = `<p>Welcome back, <strong>${userName}</strong>! | <span style="cursor: pointer; color: #0eb9e4; text-decoration: underline;" onclick="startAsNewUser()">Not ${userName}? Click here to start as NEW USER</span></p>`;
+    document.getElementById("firstName").value = userName;
+  } else {
+    welcomeDiv.innerHTML = `<p>Welcome New User!</p>`;
+  }
+}
+
+// Start as new user - clear cookie and resets the form, also updates the welcome message to reflect new user status.
+function startAsNewUser() {
+  deleteCookie("userFirstName");
+  document.getElementById("regForm").reset();
+  checkAndDisplayUser();
+}
+
 // Validation rules for each field to keep code organized and maintainable, 
 // Also states the message in red below the field when validation fails.
 
@@ -242,6 +299,9 @@ async function loadStates() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
+  // Check for existing user cookie and display welcome message
+  checkAndDisplayUser();
+  
   // Load states from external file
   loadStates();
   // Set date constraints
@@ -276,6 +336,12 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         displayError(fieldId, error);
       }
+
+      // Save firstName to cookie when valid (24 hour expiry)
+      if (fieldId === 'firstName' && !error && field.value.trim()) {
+        setCookie("userFirstName", field.value.trim(), 1);
+        checkAndDisplayUser();
+      }
     };
 
     field.addEventListener(fieldId.includes('date') ? 'change' : 'input', handler);
@@ -291,6 +357,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // submit button
   document.getElementById('confirm-submit-btn')?.addEventListener('click', () => {
+    const firstName = document.getElementById('firstName').value.trim();
+    if (firstName) {
+      setCookie("userFirstName", firstName, 1);
+    }
     window.location.href = 'thankyou.html';
   });
 
