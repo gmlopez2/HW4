@@ -116,7 +116,7 @@ input[type="reset"]:hover {
 
 /* Fixed header - Stays locked at top while scrolling (Reference structure) w3schools */
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -127,6 +127,8 @@ input[type="reset"]:hover {
   border-bottom: 4px solid #b30000;
   z-index: 1000;
   margin: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header h2 {
@@ -138,7 +140,7 @@ input[type="reset"]:hover {
 
 /* Adjust main content to account for fixed header */
 main {
-  margin-top: 80px;
+  margin-top: 60px;
   padding-bottom: 0;
 }
 
