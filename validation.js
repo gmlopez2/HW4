@@ -35,18 +35,20 @@ function deleteCookie(cname) {
   setCookie(cname, "", -1);
 }
 
-// Check for existing user and show welcome message
+// Check for existing user and show confirm dialog
 function checkAndDisplayUser() {
   const userName = getCookie("userFirstName");
-  const welcomeDiv = document.getElementById("userWelcome");
   
   if (userName) {
-    welcomeDiv.innerHTML = `Welcome back, <strong>${userName}</strong>! | <span style="cursor: pointer; text-decoration: underline; background-color: rgba(255,255,255,0.2); padding: 3px 6px; border-radius: 3px;" onclick="startAsNewUser()">Not ${userName}? Click here</span>`;
-    welcomeDiv.style.display = 'block';
-    document.getElementById("firstName").value = userName;
-  } else {
-    welcomeDiv.innerHTML = '';
-    welcomeDiv.style.display = 'none';
+    const isConfirmed = confirm(`Welcome back ${userName}.\nPress OK to confirm or Cancel if this isn't ${userName}.`);
+    if (isConfirmed) {
+      // User confirmed - pre-fill the name
+      document.getElementById("firstName").value = userName;
+    } else {
+      // User cancelled - delete cookie and clear form
+      deleteCookie("userFirstName");
+      document.getElementById("regForm").reset();
+    }
   }
 }
 
