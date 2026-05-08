@@ -42,10 +42,12 @@ function checkAndDisplayUser() {
   if (userName) {
     const isConfirmed = confirm(`Welcome back ${userName}.\nPress OK to confirm or Cancel if this isn't ${userName}.`);
     if (isConfirmed) {
-      // User confirmed - pre-fill the name
+      // User confirmed - pre-fill the name and load localStorage data
       document.getElementById("firstName").value = userName;
+      loadFormFromStorage(userName);
     } else {
-      // User cancelled - delete cookie and clear form
+      // User cancelled - delete cookie and clear storage
+      clearFormStorage(userName);
       deleteCookie("userFirstName");
       document.getElementById("regForm").reset();
     }
@@ -54,9 +56,87 @@ function checkAndDisplayUser() {
 
 // Start as new user - clear cookie and resets the form, also updates the welcome message to reflect new user status.
 function startAsNewUser() {
+  const userName = getCookie("userFirstName");
   deleteCookie("userFirstName");
+  clearFormStorage(userName);
   document.getElementById("regForm").reset();
   checkAndDisplayUser();
+}
+
+// storage function (referenced w3schools and copilot for how to structure the code, logic is on my own)
+// Create a unique storage key for each user (non-sensitive fields only)
+const storageFields = ['middleInitial', 'lastName', 'birthday', 'moveDate', 'email', 'phone', 'addr1', 'addr2', 'city', 'state', 'zip', 'notes', 'userId', 'salary', 'vaccinated', 'housing'];
+
+function getStorageKey(fieldId, userName) {
+  return `user_${userName}_${fieldId}`;
+}
+
+// Save a single field to localStorage
+function saveFieldToStorage(fieldId, userName) {
+  if (!userName) return;
+  
+  const field = document.getElementById(fieldId);
+  if (!field) return;
+  
+  let value = field.value;
+  
+  // Handle checkboxes and radio buttons
+  if (field.type === 'checkbox') {
+    value = field.checked ? 'true' : 'false';
+  } else if (field.type === 'radio') {
+    const checked = document.querySelector(`input[name="${fieldId}"]:checked`);
+    value = checked ? checked.value : '';
+  }
+  
+  const key = getStorageKey(fieldId, userName);
+  localStorage.setItem(key, value);
+}
+
+// Load all form fields from localStorage
+function loadFormFromStorage(userName) {
+  if (!userName) return;
+  
+  storageFields.forEach(fieldId => {
+    const key = getStorageKey(fieldId, userName);
+    const savedValue = localStorage.getItem(key);
+    
+    if (savedValue !== null) {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
+      
+      if (field.type === 'checkbox') {
+        field.checked = savedValue === 'true';
+      } else if (field.type === 'radio') {
+        const radioButton = document.querySelector(`input[name="${fieldId}"][value="${savedValue}"]`);
+        if (radioButton) radioButton.checked = true;
+      } else {
+        field.value = savedValue;
+      }
+    }
+  });
+  
+  // Load medical history checkboxes 
+  const historyKey = getStorageKey('history', userName);
+  const historyValue = localStorage.getItem(historyKey);
+  if (historyValue) {
+    const checkedValues = historyValue.split(',');
+    document.querySelectorAll('input[name="history"]').forEach(checkbox => {
+      checkbox.checked = checkedValues.includes(checkbox.value);
+    });
+  }
+}
+
+// Clear all localStorage for a specific user
+function clearFormStorage(userName) {
+  if (!userName) return;
+  
+  storageFields.forEach(fieldId => {
+    const key = getStorageKey(fieldId, userName);
+    localStorage.removeItem(key);
+  });
+  
+  // Also clear medical history
+  localStorage.removeItem(getStorageKey('history', userName));
 }
 
 // Validation rules for each field to keep code organized and maintainable, 
@@ -321,6 +401,15 @@ document.addEventListener('DOMContentLoaded', function () {
   // salary slider
   initializeSalarySlider();
 
+  // Add storage listener to salary slider
+  const salarySlider = document.getElementById('salary');
+  if (salarySlider) {
+    salarySlider.addEventListener('input', () => {
+      const userName = getCookie("userFirstName");
+      saveFieldToStorage('salary', userName);
+    });
+  }
+
   // Real-time validation for all fields
   Object.keys(validationRules).forEach(fieldId => {
     const field = document.getElementById(fieldId);
@@ -346,9 +435,40 @@ document.addEventListener('DOMContentLoaded', function () {
         setCookie("userFirstName", field.value.trim(), 1);
         checkAndDisplayUser();
       }
+
+      // Save to localStorage for non-sensitive fields
+      const userName = getCookie("userFirstName");
+      if (userName && storageFields.includes(fieldId)) {
+        saveFieldToStorage(fieldId, userName);
+      }
     };
 
     field.addEventListener(fieldId.includes('date') ? 'change' : 'input', handler);
+  });
+
+  // Add event listeners for checkboxes and radio buttons
+  document.querySelectorAll('input[type="checkbox"][name="history"]').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      const userName = getCookie("userFirstName");
+      if (userName) {
+        const checkedValues = Array.from(document.querySelectorAll('input[name="history"]:checked')).map(c => c.value).join(',');
+        localStorage.setItem(getStorageKey('history', userName), checkedValues);
+      }
+    });
+  });
+
+  document.querySelectorAll('input[type="radio"][name="vaccinated"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const userName = getCookie("userFirstName");
+      if (userName) saveFieldToStorage('vaccinated', userName);
+    });
+  });
+
+  document.querySelectorAll('input[type="radio"][name="housing"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const userName = getCookie("userFirstName");
+      if (userName) saveFieldToStorage('housing', userName);
+    });
   });
 
   // Validate button
